@@ -4,7 +4,7 @@ use warnings;
 use constant { TIED_PAYLOAD => 0, UNTIED_PAYLOAD => 1, CODE => 2, };
 use Devel::Spy::Util;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 sub new {
     my ( $class, $thing, $code ) = @_;
