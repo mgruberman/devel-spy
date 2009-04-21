@@ -5,3 +5,7 @@ Revision history for Devel-Spy
 
 0.02
   - Incremented the version number. That's it.
+
+0.02
+  - Removed Test::Warn as an unmarked pre-req.
+  - Make everything in ::Util be class methods.

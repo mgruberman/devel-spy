@@ -4,7 +4,7 @@ use warnings;
 use constant { TIED_PAYLOAD => 0, UNTIED_PAYLOAD => 1, CODE => 2, };
 use Devel::Spy::Util;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 sub new {
     my ( $class, $thing, $code ) = @_;
@@ -13,7 +13,7 @@ sub new {
 
     # Store a tied wrapper over the object. This will be used anytime
     # thing is ever used as a value or reference.
-    $self[TIED_PAYLOAD] = Devel::Spy::Util::wrap_thing( $thing, $code );
+    $self[TIED_PAYLOAD] = Devel::Spy::Util->wrap_thing( $thing, $code );
 
     # Store a plain copy of $thing as well. If $thing is an object the
     # method calls have to go through this copy instead. tied objects
@@ -26,14 +26,16 @@ sub new {
     return bless \@self, "$class\::_obj";
 }
 
-my $null_eventlog = Devel::Spy::Util::Y {
-    local *__ANON__ = 'null_eventlog_curry';
-    my $f = shift @_;
-    return sub {
-        local *__ANON__ = 'null_eventlog';
-        return $f;
-    };
-};
+my $null_eventlog = Devel::Spy::Util->Y(
+    sub {
+        local *__ANON__ = 'null_eventlog_curry';
+        my $f = shift @_;
+        return sub {
+            local *__ANON__ = 'null_eventlog';
+            return $f;
+        };
+    }
+);
 
 sub make_null_eventlog {
     return $null_eventlog;
@@ -66,29 +68,33 @@ sub make_eventlog {
         # Let the caller add more information to this log entry
         # with more information as needed.
         my $followup = \$eventlog[-1];
-        return Devel::Spy::Util::Y {
-            my $f = shift @_;
+        return Devel::Spy::Util->Y(
             sub {
-                local *__ANON__ = 'eventlog_followup';
-                $$followup .= "@_";
-                $f;
-            };
-        };
+                my $f = shift @_;
+                sub {
+                    local *__ANON__ = 'eventlog_followup';
+                    $$followup .= "@_";
+                    $f;
+                };
+            }
+        );
     };
 
     return ( \@eventlog, $logger );
 }
 
-my $tattler = Devel::Spy::Util::Y {
-    local *__ANON__ = 'tattler curry';
-    my $f = shift @_;
-    return sub {
-        local *__ANON__ = 'tattler';
-        local $\        = "\n";
-        print for @_;
-        return $f;
-    };
-};
+my $tattler = Devel::Spy::Util->Y(
+    sub {
+        local *__ANON__ = 'tattler curry';
+        my $f = shift @_;
+        return sub {
+            local *__ANON__ = 'tattler';
+            local $\        = "\n";
+            print for @_;
+            return $f;
+        };
+    }
+);
 
 sub make_tattler {
     return $tattler;

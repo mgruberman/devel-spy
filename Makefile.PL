@@ -11,6 +11,7 @@ WriteMakefile(
     PREREQ_PM     => {
         'Test::More'  => 0,
         'Test::Class' => 0,
+        'Test::Warn'  => 0,
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES    => 'Devel-Spy-*' },

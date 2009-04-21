@@ -19,7 +19,7 @@ use Devel::Spy::Util;
 use overload(
     map {
         my $deref = $_;
-        $deref => Devel::Spy::Util::compile_this( <<"CODE" );
+        $deref => Devel::Spy::Util->compile_this( <<"CODE" );
             sub {
                 local *__ANON__ = __PACKAGE__ . '->$deref';
 
@@ -48,7 +48,7 @@ CODE
 use overload(
     map {
         my $converter = $_;
-        $converter => Devel::Spy::Util::compile_this( <<"CODE" );
+        $converter => Devel::Spy::Util->compile_this( <<"CODE" );
             sub {
                 local *__ANON__ = __PACKAGE__ . '->$converter';
 
@@ -65,7 +65,7 @@ CODE
 use overload(
     map {
         my $op = $_;
-        $op => Devel::Spy::Util::compile_this( <<"CODE" );
+        $op => Devel::Spy::Util->compile_this( <<"CODE" );
             sub {
                 local *__ANON__ = __PACKAGE__ . '->$op';
 
@@ -182,3 +182,15 @@ sub AUTOLOAD {
 sub DESTROY { }
 
 1;
+
+__END__
+
+=head1 NAME
+
+Devel::Spy::_obj - Devel::Spy implementation
+
+=head1 SEE ALSO
+
+L<Devel::Spy>, L<Devel::Spy::Util>, L<Devel::Spy::TieHash>,
+L<Devel::Spy::TieArray>, L<Devel::Spy::TieScalar>,
+L<Devel::Spy::TieHandle>

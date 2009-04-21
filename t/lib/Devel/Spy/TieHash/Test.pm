@@ -4,7 +4,6 @@ use warnings;
 use Test::Class;
 BEGIN { our @ISA = 'Test::Class' }
 use Test::More;
-use Test::Warn;
 
 use Devel::Spy;
 

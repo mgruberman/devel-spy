@@ -6,9 +6,9 @@ use overload     ();
 use Scalar::Util ();
 use Carp         ();
 
-sub Y (&) {    ## no critic (Prototype)
-               # The Y combinator.
-    my $curried_rec = shift @_;
+sub Y {    ## no critic (Prototype)
+           # The Y combinator.
+    my ( undef, $curried_rec ) = @_;
     my $p = sub {
         my $f = shift @_;
         return $curried_rec->( sub { $f->($f)->(@_) } );
@@ -30,7 +30,7 @@ sub compile_this {
     #       };
     #       1;
     #   SRC
-    my $src = shift @_;
+    my ( undef, $src ) = @_;
     my ( $package, $filename, $line ) = caller;
 
     # Add some sugar to make the code appear in the proper location.
@@ -55,7 +55,11 @@ CODE
     # NOT REACHED
 }
 
+my %class_rx_cache;
+
 sub comes_from {
+    my $class    = shift @_;
+    my $class_rx = $class_rx_cache{$class} ||= qr/\A\Q$class\E(?:\z|::)/;
 
     # Returns a string showing the location of the non-Devel::Spy code
     # that's higher in the call stack.
@@ -63,7 +67,7 @@ sub comes_from {
     while ( my ( $pkg, undef, $line ) = caller $cx++ ) {
 
         # Find !Devel::Spy
-        unless ( $pkg =~ /^Devel::Spy/ ) {
+        unless ( $pkg =~ $class_rx ) {
             return "($pkg:$line)";
         }
     }
@@ -74,21 +78,24 @@ sub comes_from {
 }
 
 sub wrap_thing {
-    my ( $thing, $code ) = @_;
+    my ( $class, $thing, $code ) = @_;
 
     # Use a tied proxy to $thing instead of $thing directly. But only
     # if $thing is a reference.
     my $reftype = Scalar::Util::reftype $thing;
     return $thing unless defined $reftype;
 
+    # This may be a really bad idea.
+    $class =~ s/::Util\z//;
+
     # Return a tied wrapper over $thing.
     if ( 'HASH' eq $reftype ) {
-        tie my %pretend_self, 'Devel::Spy::TieHash', $thing, $code
+        tie my %pretend_self, "$class\::TieHash", $thing, $code
             or Carp::confess;
         return \%pretend_self;
     }
     elsif ( 'SCALAR' eq $reftype ) {
-        tie my $pretend_self, 'Devel::Spy::TieScalar', $thing, $code
+        tie my $pretend_self, "$class\::TieScalar", $thing, $code
             or Carp::confess;
         return \$pretend_self;
     }
@@ -106,13 +113,11 @@ __END__
 
 Devel::Spy::Util - Utility functions for Devel::Spy
 
-=head1 PRIVATE FUNCTIONS
+=head1 PRIVATE METHODS
 
 =over
 
-=item C<FUNCTION = Devel::Spy::Y { ... }>
-
-=item C<FUNCTION = &Devel::Spy::Y( sub { ... } )>
+=item C<< FUNCTION = Devel::Spy::Util->Y( FUNCTION ) >>
 
 The Y combinator. See http://use.perl.org/~Aristotle/journal/30896 for
 the scoop. Devel::Spy uses it to make functions that support the
@@ -122,21 +127,21 @@ following snippet.
       $logger = $logger->();
   }
 
-=item C<VALUE = compile_this( SOURCE CODE )>
+=item C<< VALUE = Devel::Spy::Util->compile_this( SOURCE CODE ) >>
 
 Compiles SOURCE CODE and returns it. It throws an exception if the
 result is false.
 
-=item C<LOCATION = comes_from()>
+=item C<< LOCATION = Devel::Spy::Util->comes_from >>
 
 Returns a string showing the file and line number that called into
 Devel::Spy.
 
-=item C<WRAPPED OBJECT = wrap_thing( OBJECT, CODE )>
+=item C<< WRAPPED OBJECT = Devel::Spy::Util->wrap_thing( OBJECT, CODE ) >>
 
-=item C<WRAPPED OBJECT = wrap_thing( REFERENCE, CODE )>
+=item C<< WRAPPED OBJECT = Devel::Spy::Util->wrap_thing( REFERENCE, CODE ) >>
 
-=item C<VALUE = wrap_thing( VALUE, CODE )>
+=item C<< VALUE = Devel::Spy::Util->wrap_thing( VALUE, CODE ) >>
 
 If the "thing" passed in as the first parameter is any kind of
 reference or object it is returned in a Devel::Spy::Tie* wrapper.
