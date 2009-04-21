@@ -94,6 +94,11 @@ sub wrap_thing {
             or Carp::confess;
         return \%pretend_self;
     }
+    elsif ( 'ARRAY' eq $reftype ) {
+        tie my @pretend_self, "$class\::TieArray", $thing, $code
+            or Carp::confess;
+        return \@pretend_self;
+    }
     elsif ( 'SCALAR' eq $reftype ) {
         tie my $pretend_self, "$class\::TieScalar", $thing, $code
             or Carp::confess;

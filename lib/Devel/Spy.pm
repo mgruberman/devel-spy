@@ -103,6 +103,7 @@ sub make_tattler {
 # Include these *after* _compile is compiled because they'll want it available.
 use Devel::Spy::_obj;
 use Devel::Spy::TieScalar;
+use Devel::Spy::TieArray;
 use Devel::Spy::TieHash;
 
 1;
