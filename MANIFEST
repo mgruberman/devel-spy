@@ -1,0 +1,21 @@
+Changes
+lib/Devel/Spy.pm
+lib/Devel/Spy/_obj.pm
+lib/Devel/Spy/TieArray.pm
+lib/Devel/Spy/TieHandle.pm
+lib/Devel/Spy/TieHash.pm
+lib/Devel/Spy/TieScalar.pm
+lib/Devel/Spy/Util.pm
+Makefile.PL
+MANIFEST
+META.yml			# Will be created by "make dist"
+README
+t/lib/Devel/Spy/_obj/Test.pm
+t/lib/Devel/Spy/Test.pm
+t/lib/Devel/Spy/TieArray/Test.pm
+t/lib/Devel/Spy/TieHandle/Test.pm
+t/lib/Devel/Spy/TieHash/Test.pm
+t/lib/Devel/Spy/TieScalar/Test.pm
+t/lib/Devel/Spy/Util/Test.pm
+t/lib/NSA.pm
+t/runtests.t
