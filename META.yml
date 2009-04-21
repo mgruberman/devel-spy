@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Devel-Spy
-version:             0.04
+version:             0.05
 abstract:            Arrrr!
 license:             ~
 generated_by:        ExtUtils::MakeMaker version 6.31
@@ -9,6 +9,7 @@ requires:
     Test::Class:                   0
     Test::More:                    0
     Test::Warn:                    0
+    UNIVERSAL::ref:                0
 meta-spec:
     url:     http://module-build.sourceforge.net/META-spec-v1.2.html
     version: 1.2

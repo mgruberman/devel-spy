@@ -15,6 +15,12 @@ use warnings FATAL => 'all';
 use overload ();
 use Devel::Spy::Util;
 
+use UNIVERSAL::ref;
+
+sub ref {
+    return CORE::ref( $_[0][Devel::Spy::UNTIED_PAYLOAD] );
+}
+
 # Overload all dereferencing.
 use overload(
     map {

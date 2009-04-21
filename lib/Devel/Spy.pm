@@ -4,7 +4,7 @@ use warnings;
 use constant { TIED_PAYLOAD => 0, UNTIED_PAYLOAD => 1, CODE => 2, };
 use Devel::Spy::Util;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 sub new {
     my ( $class, $thing, $code ) = @_;
@@ -111,7 +111,7 @@ __END__
 
 =head1 NAME
 
-Devel::Spy - Arrrr!
+Devel::Spy - Spy on your objects and data
 
 =head1 DESCRIPTION
 
