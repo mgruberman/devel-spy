@@ -6,6 +6,16 @@ Revision history for Devel-Spy
 0.02
   - Incremented the version number. That's it.
 
-0.02
+0.03
   - Removed Test::Warn as an unmarked pre-req.
   - Make everything in ::Util be class methods.
+
+0.04
+  - Devel::Spy::TieHash:
+    - Streamlined TIEHASH.
+    - Removed uninitialized warning from STORE, FETCH. This is just til I get tests for this.
+    - Implemented remaining methods.
+  - Devel::Spy::TieArray:
+    - Implemented much of the class.
+  - Devel::Spy::_obj
+    - Bug fix: Called method results as functions instead of returning it.

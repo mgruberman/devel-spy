@@ -10,18 +10,11 @@ use constant { PAYLOAD => 0, CODE => 1, };
 sub TIEHASH {
     my $class = shift @_;
 
-    my @self;
-    @self[ PAYLOAD, CODE, ] = @_;
-
-    return bless \@self, $class;
+    return bless [@_], $class;
 }
 
 sub FETCH {
     my ( $self, $key ) = @_;
-    unless ( defined $key ) {
-        $key = '';
-        carp 'Use of uninitialized value in hash key';
-    }
 
     my $value = $self->[PAYLOAD]->{$key};
 
@@ -33,16 +26,65 @@ sub FETCH {
 
 sub STORE {
     my ( $self, $key, $value ) = @_;
-    unless ( defined $key ) {
-        $key = '';
-        carp 'Use of uninitialized value in hash key';
-    }
 
     $self->[PAYLOAD]->{$key} = $value;
 
     my $followup = $self->[CODE]
         ->( "->{$key} = " . ( defined $value ? $value : 'undef' ) );
 
+    return Devel::Spy->new( $value, $followup );
+}
+
+sub DELETE {
+    my ( $self, $key ) = @_;
+
+    my $value = delete $self->[PAYLOAD]->{$key};
+
+    my $followup = $self->[CODE]
+        ->( " delete ->{$key} ->" . ( defined $value ? $value : 'undef' ) );
+
+    return Devel::Spy->new( $value, $followup );
+}
+
+sub CLEAR {
+    my ($self) = @_;
+
+    %{ $self->[PAYLOAD] } = ();
+    $self->[CODE]->(' %... = ()');
+    return;
+}
+
+sub EXISTS {
+    my ( $self, $key ) = @_;
+
+    my $value    = exists $self->[PAYLOAD]->{$key};
+    my $followup = $self->[CODE]->(" exists(->{$key}) ->$value");
+
+    return Devel::Spy->new( $value, $followup );
+}
+
+sub FIRSTKEY {
+    my ($self) = @_;
+
+    keys %{ $self->[PAYLOAD] };
+    my $key      = each %{ $self->[PAYLOAD] };
+    my $followup = $self->[CODE]->(" each(%...) ->$key");
+    return Devel::Spy->new( $key, $followup );
+}
+
+sub NEXTKEY {
+    my ( $self, undef ) = @_;
+
+    my $key      = each %{ $self->[PAYLOAD] };
+    my $followup = $self->[CODE]->(" each(%...) ->$key");
+    return Devel::Spy->new( $key, $followup );
+}
+
+sub SCALAR {
+    my ($self) = @_;
+
+    my $value    = %{ $self->[PAYLOAD] };
+    my $followup = $self->[CODE]->(" scalar(%...) ->$value");
     return Devel::Spy->new( $value, $followup );
 }
 

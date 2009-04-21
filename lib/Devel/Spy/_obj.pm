@@ -140,7 +140,7 @@ sub AUTOLOAD {
                 . ')' );
 
         # Redispatch.
-        my @results = $self->[Devel::Spy::UNTIED_PAYLOAD]->$method->(@_);
+        my @results = $self->[Devel::Spy::UNTIED_PAYLOAD]->$method(@_);
 
         # Log after.
         $followup = $followup->(
@@ -171,7 +171,7 @@ sub AUTOLOAD {
                 . ')' );
 
         # Redispatch.
-        $self->[Devel::Spy::UNTIED_PAYLOAD]->$method->(@_);
+        $self->[Devel::Spy::UNTIED_PAYLOAD]->$method(@_);
 
         # Log after?
 

@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Devel-Spy
-version:             0.03
+version:             0.04
 abstract:            Arrrr!
 license:             ~
 generated_by:        ExtUtils::MakeMaker version 6.31
