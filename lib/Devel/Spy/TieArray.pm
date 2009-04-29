@@ -1,7 +1,8 @@
 package Devel::Spy::TieArray;
 use strict;
 use warnings;
-use constant { PAYLOAD => 0, CODE => 1 };
+use constant PAYLOAD => 0;
+use constant CODE => 1;
 
 sub TIEARRAY {
     my $class = shift @_;
