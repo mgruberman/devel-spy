@@ -1,7 +1,6 @@
 package Devel::Spy::TieHash;
 use strict;
 use warnings;
-use Carp 'carp';
 
 use constant PAYLOAD => 0;
 use constant CODE => 1;
