@@ -7,15 +7,8 @@ lib/Devel/Spy/TieHash.pm
 lib/Devel/Spy/TieScalar.pm
 lib/Devel/Spy/Util.pm
 Makefile.PL
-MANIFEST
-META.yml			# Will be created by "make dist"
+MANIFEST			This list of files
+META.yml
 README
-t/lib/Devel/Spy/_obj/Test.pm
 t/lib/Devel/Spy/Test.pm
-t/lib/Devel/Spy/TieArray/Test.pm
-t/lib/Devel/Spy/TieHandle/Test.pm
-t/lib/Devel/Spy/TieHash/Test.pm
-t/lib/Devel/Spy/TieScalar/Test.pm
-t/lib/Devel/Spy/Util/Test.pm
-t/lib/NSA.pm
 t/runtests.t
