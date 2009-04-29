@@ -20,6 +20,26 @@ use Test::More;
 
 use Devel::Spy;
 
+{
+    package XXX::Test;
+    sub TIEHANDLE { bless [], shift }
+    sub PRINT { push @{$_[0]}, @_[ 1 .. $#_ ] }
+    sub DESTROY {}
+    sub contents { join '', @{$_[0]} }
+}
+
+sub tattler :Test(1) {
+    my $logger = Devel::Spy->make_tattler;
+    my $logged = tie *STDOUT, 'XXX::Test';
+
+    local $SIG{__DIE__} = sub { $DB::signal = 1 };
+    my @inner;
+    my $outer = Devel::Spy->new( \ @inner, $logger );
+    $outer->[52] = 'Go go Pony';
+    
+    like( $logged->contents, qr/Go go pony/, '->make_tattler logs to STDOUT' );
+}
+
 sub hash_value : Test(8) {
     my @log;
     my $logger;
