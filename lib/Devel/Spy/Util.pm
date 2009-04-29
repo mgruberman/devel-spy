@@ -41,18 +41,9 @@ $src
 CODE
 
     ## no critic (Eval)
-    if (wantarray) {
-        my @result = eval $src
-            or Carp::confess "$@ while compiling:\n$src";
-        return @result;
-    }
-    else {
-        my $result = eval $src
-            or Carp::confess "$@ while compiling:\n$src";
-        return $result;
-    }
-
-    # NOT REACHED
+    my $result = eval $src
+        or Carp::confess "$@ while compiling:\n$src";
+    return $result;
 }
 
 my %class_rx_cache;
