@@ -21,6 +21,7 @@ use constant SELF     => 0;
 use constant OTHER    => 1;
 use constant INVERTED => 2;
 
+# Called by UNIVERSAL::ref
 sub ref {
     return CORE::ref( $_[SELF][Devel::Spy::UNTIED_PAYLOAD] );
 }
