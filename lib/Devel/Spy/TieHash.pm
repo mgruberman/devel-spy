@@ -1,8 +1,6 @@
 package Devel::Spy::TieHash;
 use strict;
 use warnings;
-use Tie::Hash ();
-our @ISA = 'Tie::Hash';
 use Carp 'carp';
 
 use constant { PAYLOAD => 0, CODE => 1, };

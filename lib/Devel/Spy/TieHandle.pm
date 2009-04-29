@@ -1,8 +1,6 @@
 package Devel::Spy::TieHandle;
 use strict;
 use warnings;
-use Tie::Scalar;
-our @ISA = 'Tie::Scalar';
 
 1;
 

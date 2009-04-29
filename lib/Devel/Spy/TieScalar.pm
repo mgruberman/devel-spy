@@ -1,8 +1,6 @@
 package Devel::Spy::TieScalar;
 use strict;
 use warnings;
-use Tie::Scalar ();
-our @ISA = 'Tie::Scalar';
 
 use constant { PAYLOAD => 0, CODE => 1, };
 
