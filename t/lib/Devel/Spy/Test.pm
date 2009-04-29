@@ -135,7 +135,6 @@ sub obj_tied_hash : Test(6) {
     # properly blessed.
 TODO: {
         local $TODO = q['' is returned instead];
-        $DB::signal = 1;
         my $result = $obj->{foo};
         ok( ! defined $result, q[Uninitialized hash entries are undef] );
     }
