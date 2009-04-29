@@ -64,6 +64,9 @@ sub STORESIZE {
 # sub UNSHIFT { }
 # sub SPLICE  { }
 
+sub UNTIE {}
+sub DESTROY {}
+
 1;
 
 __END__

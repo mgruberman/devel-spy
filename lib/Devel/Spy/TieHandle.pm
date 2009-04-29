@@ -2,6 +2,9 @@ package Devel::Spy::TieHandle;
 use strict;
 use warnings;
 
+sub UNTIE {}
+sub DESTROY {}
+
 1;
 
 __END__

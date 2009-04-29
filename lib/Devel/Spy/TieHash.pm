@@ -90,6 +90,9 @@ sub SCALAR {
     return Devel::Spy->new( $value, $followup );
 }
 
+sub UNTIE {}
+sub DESTROY {}
+
 1;
 
 __END__
