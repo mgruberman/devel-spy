@@ -13,10 +13,9 @@ use warnings;
 use warnings FATAL => 'all';
 
 use overload ();
-use Devel::Spy::Util;
 use Sub::Name ();
-
 use UNIVERSAL::ref;
+use Devel::Spy::Util ();
 
 use constant SELF     => 0;
 use constant OTHER    => 1;
