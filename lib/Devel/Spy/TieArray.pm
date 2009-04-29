@@ -12,15 +12,17 @@ sub TIEARRAY {
 
 sub FETCH {
     my ( $self, $ix ) = @_;
-    my $followup = $self->[CODE]->(" ->[$ix]");
+    my $followup = $self->[CODE]->(' ->['.(defined $ix ? $ix : 'undef').']');
+    $ix = 0 unless defined $ix;
     my $value    = $self->[PAYLOAD]->[$ix];
-    $followup = $followup->(" ->$value");
+    $followup = $followup->(' ->'.(defined $value ? $value : 'undef'));
     return Devel::Spy->new( $value, $followup );
 }
 
 sub STORE {
     my ( $self, $ix, $value ) = @_;
-    my $followup = $self->[CODE]->(" ->[$ix] = $value");
+    my $followup = $self->[CODE]->(' ->['.(defined $ix ? $ix : 'undef').'] = '.(defined $value ? $value : 'undef'));
+    $ix = 0 unless defined $ix;
     $self->[PAYLOAD]->[$ix] = $value;
     return Devel::Spy->new( $value, $followup );
 }
@@ -29,13 +31,14 @@ sub FETCHSIZE {
     my $self     = shift @_;
     my $followup = $self->[CODE]->(' scalar(@...)');
     my $value    = scalar @{ $self->[PAYLOAD] };
-    $followup = $self->[CODE]->(" ->$value");
+    $followup = $self->[CODE]->(' ->'.(defined $value ? $value : 'undef'));
     return Devel::Spy->new( $value, $followup );
 }
 
 sub STORESIZE {
     my ( $self, $count ) = @_;
-    $self->[CODE]->(" \$\#... = $count");
+    $self->[CODE]->(' $#... = ' . (defined $count ? $count : 'undef' ));
+    $count = 0 unless defined $count;
     $#{ $self->[PAYLOAD] } = 1 + $count;
     return;
 }
