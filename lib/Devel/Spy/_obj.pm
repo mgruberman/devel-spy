@@ -45,7 +45,14 @@ use overload(
                     # result. Bummer.
                     my \$followup = \$_[SELF][Devel::Spy::CODE]->( ' ->$deref' );
                     my \$tied = \$_[SELF][Devel::Spy::TIED_PAYLOAD];
-                    my \$obj = tied %\$tied;
+                    my \$reftype = CORE::ref( \$tied );
+                    my \$obj =
+                        'HASH'   eq \$reftype ? ( tied %\$tied  ) :
+                        'ARRAY'  eq \$reftype ? ( tied \@\$tied ) :
+                        'SCALAR' eq \$reftype ? ( tied \$\$tied ) :
+                        'CODE'   eq \$reftype ? ( tied &\$tied  ) :
+                        'GLOB'   eq \$reftype ? ( tied *\$tied  ) :
+                        die "Unknown reftype \$reftype for object \$tied";
                     \$obj->[1] = \$followup;
                     return \$tied;
                 }
