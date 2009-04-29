@@ -15,6 +15,7 @@ sub TIEHASH {
 
 sub FETCH {
     my ( $self, $key ) = @_;
+    $key = '' unless defined $key;
 
     my $value = $self->[PAYLOAD]->{$key};
 
@@ -26,6 +27,7 @@ sub FETCH {
 
 sub STORE {
     my ( $self, $key, $value ) = @_;
+    $key = '' unless defined $key;
 
     $self->[PAYLOAD]->{$key} = $value;
 
@@ -37,6 +39,7 @@ sub STORE {
 
 sub DELETE {
     my ( $self, $key ) = @_;
+    $key = '' unless defined $key;
 
     my $value = delete $self->[PAYLOAD]->{$key};
 
@@ -56,9 +59,10 @@ sub CLEAR {
 
 sub EXISTS {
     my ( $self, $key ) = @_;
+    $key = '' unless defined $key;
 
     my $value    = exists $self->[PAYLOAD]->{$key};
-    my $followup = $self->[CODE]->(" exists(->{$key}) ->$value");
+    my $followup = $self->[CODE]->(" exists(->{$key}) ->" . ( defined $value ? $value : 'undef' ));
 
     return Devel::Spy->new( $value, $followup );
 }
@@ -68,7 +72,7 @@ sub FIRSTKEY {
 
     keys %{ $self->[PAYLOAD] };
     my $key      = each %{ $self->[PAYLOAD] };
-    my $followup = $self->[CODE]->(" each(%...) ->$key");
+    my $followup = $self->[CODE]->(" each(%...) ->" . ( defined $key ? $key : 'undef' ));
     return Devel::Spy->new( $key, $followup );
 }
 
@@ -76,7 +80,7 @@ sub NEXTKEY {
     my ( $self, undef ) = @_;
 
     my $key      = each %{ $self->[PAYLOAD] };
-    my $followup = $self->[CODE]->(" each(%...) ->$key");
+    my $followup = $self->[CODE]->(" each(%...) ->" . ( defined $key ? $key : 'undef' ));
     return Devel::Spy->new( $key, $followup );
 }
 
@@ -84,7 +88,7 @@ sub SCALAR {
     my ($self) = @_;
 
     my $value    = %{ $self->[PAYLOAD] };
-    my $followup = $self->[CODE]->(" scalar(%...) ->$value");
+    my $followup = $self->[CODE]->(" scalar(%...) ->" . ( defined $value ? $value : 'undef' ));
     return Devel::Spy->new( $value, $followup );
 }
 
