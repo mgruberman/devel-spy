@@ -13,6 +13,7 @@ WriteMakefile(
         'Test::Class'    => 0,
         'Test::Warn'     => 0,
         'UNIVERSAL::ref' => 0,
+        'Sub::Name'      => 0,
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES    => 'Devel-Spy-*' },

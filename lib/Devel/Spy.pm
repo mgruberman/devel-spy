@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use constant { TIED_PAYLOAD => 0, UNTIED_PAYLOAD => 1, CODE => 2, };
 use Devel::Spy::Util;
+use Sub::Name ();
 
 our $VERSION = '0.06';
 
@@ -27,14 +28,12 @@ sub new {
 }
 
 my $null_eventlog = Devel::Spy::Util->Y(
-    sub {
-        local *__ANON__ = 'null_eventlog_curry';
+    Sub::Name::subname( null_eventlog_curry => sub {
         my $f = shift @_;
-        return sub {
-            local *__ANON__ = 'null_eventlog';
+        return Sub::Name::subname( null_eventlog => sub {
             return $f;
-        };
-    }
+        } );
+    } )
 );
 
 sub make_null_eventlog {
@@ -59,8 +58,7 @@ sub make_eventlog {
     #   $bar = $bar->( 4 );            # Appends '4' onto '123'
 
     my @eventlog;
-    my $logger = sub {
-        local *__ANON__ = 'EVENT';
+    my $logger = Sub::Name::subname( EVENT => sub {
 
         # Add to the event log
         push @eventlog, "@_";
@@ -69,32 +67,29 @@ sub make_eventlog {
         # with more information as needed.
         my $followup = \$eventlog[-1];
         return Devel::Spy::Util->Y(
-            sub {
+            Sub::Name::subname( eventlog_curry => sub {
                 my $f = shift @_;
-                sub {
-                    local *__ANON__ = 'eventlog_followup';
+                Sub::Name::subname( eventlog_followup => sub {
                     $$followup .= "@_";
                     $f;
-                };
+                } );
             }
-        );
-    };
+        ) );
+    } );
 
     return ( \@eventlog, $logger );
 }
 
 my $tattler = Devel::Spy::Util->Y(
-    sub {
-        local *__ANON__ = 'tattler curry';
+    Sub::Name::subname( tattler_curry => sub {
         my $f = shift @_;
-        return sub {
-            local *__ANON__ = 'tattler';
+        return Sub::Name::subname( tattler => sub {
             local $\        = "\n";
             print for @_;
             return $f;
-        };
+        } );
     }
-);
+) );
 
 sub make_tattler {
     return $tattler;

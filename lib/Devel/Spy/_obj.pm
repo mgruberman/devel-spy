@@ -14,6 +14,7 @@ use warnings FATAL => 'all';
 
 use overload ();
 use Devel::Spy::Util;
+use Sub::Name ();
 
 use UNIVERSAL::ref;
 
@@ -26,8 +27,7 @@ use overload(
     map {
         my $deref = $_;
         $deref => Devel::Spy::Util->compile_this( <<"CODE" );
-            sub {
-                local *__ANON__ = __PACKAGE__ . '->$deref';
+            Sub::Name::subname( '@{[__PACKAGE__]}->$deref' => sub {
 
                 # Allow ourselves to access our own guts and let everyone
                 # else have the payload.
@@ -43,7 +43,7 @@ use overload(
                     tied( %{ \$_[0][Devel::Spy::TIED_PAYLOAD] } )->[1] = \$followup;
                     return \$_[0][Devel::Spy::TIED_PAYLOAD];
                 }
-            }
+            } );
 CODE
         }
         split ' ',
@@ -55,12 +55,11 @@ use overload(
     map {
         my $converter = $_;
         $converter => Devel::Spy::Util->compile_this( <<"CODE" );
-            sub {
-                local *__ANON__ = __PACKAGE__ . '->$converter';
+            Sub::Name::subname( '@{[__PACKAGE__]}->$converter' => sub {
 
                 \$_[0][Devel::Spy::CODE]->(' ->$converter');
                 return \$_[0][Devel::Spy::TIED_PAYLOAD];
-            }
+            } );
 CODE
         }
         split ' ',
@@ -72,8 +71,7 @@ use overload(
     map {
         my $op = $_;
         $op => Devel::Spy::Util->compile_this( <<"CODE" );
-            sub {
-                local *__ANON__ = __PACKAGE__ . '->$op';
+            Sub::Name::subname( '@{[__PACKAGE__]}->$op' => sub {
 
                 # Unpack the arguments.
                 my ( \$self, \$rhs, \$inverted ) = \@_;
@@ -90,7 +88,7 @@ use overload(
                                                            . ') ->'
                                                            . overload::StrVal(\$result) );
                 return Devel::Spy->new( \$result, \$followup );
-             };
+             } );
 CODE
         }
         map split(' '),
