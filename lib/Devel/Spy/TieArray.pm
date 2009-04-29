@@ -1,45 +1,44 @@
 package Devel::Spy::TieArray;
 use strict;
 use warnings;
+use constant SELF  => 0;
+use constant IX    => 1;
+use constant COUNT => 1;
+use constant VALUE => 2;
+
 use constant PAYLOAD => 0;
-use constant CODE => 1;
+use constant CODE    => 1;
 
 sub TIEARRAY {
-    my $class = shift @_;
-
-    return bless [@_], $class;
+    my ( undef, @array ) = @_;
+    return bless \ @array, $_[SELF];
 }
 
 sub FETCH {
-    my ( $self, $ix ) = @_;
-    my $followup = $self->[CODE]->(' ->['.(defined $ix ? $ix : 'undef').']');
-    $ix = 0 unless defined $ix;
-    my $value    = $self->[PAYLOAD]->[$ix];
+    my $followup = $_[SELF][CODE]->(' ->['.(defined $_[IX] ? $_[IX] : 'undef').']');
+    my $ix = defined $_[IX] ? $_[IX] : 0;
+    my $value    = $_[SELF][PAYLOAD][$ix];
     $followup = $followup->(' ->'.(defined $value ? $value : 'undef'));
     return Devel::Spy->new( $value, $followup );
 }
 
 sub STORE {
-    my ( $self, $ix, $value ) = @_;
-    my $followup = $self->[CODE]->(' ->['.(defined $ix ? $ix : 'undef').'] = '.(defined $value ? $value : 'undef'));
-    $ix = 0 unless defined $ix;
-    $self->[PAYLOAD]->[$ix] = $value;
-    return Devel::Spy->new( $value, $followup );
+    my $followup = $_[SELF][CODE]->(' ->['.(defined $_[IX] ? $_[IX] : 'undef').'] = '.(defined $_[VALUE] ? $_[VALUE] : 'undef'));
+    my $ix = defined $_[IX] ? $_[IX] : 0;
+    $_[SELF][PAYLOAD]->[$ix] = $_[VALUE];
+    return Devel::Spy->new( $_[VALUE], $followup );
 }
 
 sub FETCHSIZE {
-    my $self     = shift @_;
-    my $followup = $self->[CODE]->(' scalar(@...)');
-    my $value    = scalar @{ $self->[PAYLOAD] };
-    $followup = $self->[CODE]->(' ->'.(defined $value ? $value : 'undef'));
+    my $followup = $_[SELF][CODE]->(' scalar(@...)');
+    my $value    = @{ $_[SELF][PAYLOAD] };
+    $followup = $_[SELF][CODE]->(' ->'.(defined $value ? $value : 'undef'));
     return Devel::Spy->new( $value, $followup );
 }
 
 sub STORESIZE {
-    my ( $self, $count ) = @_;
-    $self->[CODE]->(' $#... = ' . (defined $count ? $count : 'undef' ));
-    $count = 0 unless defined $count;
-    $#{ $self->[PAYLOAD] } = 1 + $count;
+    $_[SELF][CODE]->(' $#... = ' . (defined $_[COUNT] ? $_[COUNT] : 'undef' ));
+    $#{ $_[SELF][PAYLOAD] } = defined $_[COUNT] ? 1 + $_[COUNT] : 0;
     return;
 }
 
