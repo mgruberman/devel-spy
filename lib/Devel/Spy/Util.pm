@@ -82,18 +82,15 @@ sub wrap_thing {
 
     # Return a tied wrapper over $thing.
     if ( 'HASH' eq $reftype ) {
-        tie my %pretend_self, "$class\::TieHash", $thing, $code
-            or Carp::confess;
+        tie my %pretend_self, "$class\::TieHash", $thing, $code;
         return \%pretend_self;
     }
     elsif ( 'ARRAY' eq $reftype ) {
-        tie my @pretend_self, "$class\::TieArray", $thing, $code
-            or Carp::confess;
+        tie my @pretend_self, "$class\::TieArray", $thing, $code;
         return \@pretend_self;
     }
     elsif ( 'SCALAR' eq $reftype ) {
-        tie my $pretend_self, "$class\::TieScalar", $thing, $code
-            or Carp::confess;
+        tie my $pretend_self, "$class\::TieScalar", $thing, $code;
         return \$pretend_self;
     }
     elsif ( 'GLOB' eq $reftype ) {
