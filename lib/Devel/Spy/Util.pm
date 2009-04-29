@@ -5,6 +5,7 @@ use warnings;
 use overload     ();
 use Scalar::Util ();
 use Carp         ();
+use Symbol       ();
 
 sub Y {    ## no critic (Prototype)
            # The Y combinator.
@@ -95,8 +96,13 @@ sub wrap_thing {
             or Carp::confess;
         return \$pretend_self;
     }
+    elsif ( 'GLOB' eq $reftype ) {
+        my $pretend_self = Symbol::gensym();
+        tie *$pretend_self, "$class\::TieHandle", $thing, $code;
+        return $pretend_self;
+    }
 
-    # Missing implementations for TIEARRAY and TIEHANDLE.
+    # Missing implementations?
     Carp::croak "Unsupported reftype: $reftype on "
         . overload::StrVal($thing);
 }
