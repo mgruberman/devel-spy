@@ -18,8 +18,10 @@ use Sub::Name ();
 
 use UNIVERSAL::ref;
 
+use constant _self     => 0;
+
 sub ref {
-    return CORE::ref( $_[0][Devel::Spy::UNTIED_PAYLOAD] );
+    return CORE::ref( $_[_self][Devel::Spy::UNTIED_PAYLOAD] );
 }
 
 # Overload all dereferencing.
@@ -32,16 +34,18 @@ use overload(
                 # Allow ourselves to access our own guts and let everyone
                 # else have the payload.
                 if ( caller() eq 'Devel::Spy::_obj' ) {
-                    return \$_[0];
+                    return \$_[_self];
                 }
                 else {
                     # This idea is really dodgy but I found myself in
                     # an infinite loop of some kind when I returned a
                     # plain Devel::Spy object wrapping the
                     # result. Bummer.
-                    my \$followup = \$_[0][Devel::Spy::CODE]->( ' ->$deref' );
-                    tied( %{ \$_[0][Devel::Spy::TIED_PAYLOAD] } )->[1] = \$followup;
-                    return \$_[0][Devel::Spy::TIED_PAYLOAD];
+                    my \$followup = \$_[_self][Devel::Spy::CODE]->( ' ->$deref' );
+                    my \$tied = \$_[_self][Devel::Spy::TIED_PAYLOAD];
+                    my \$obj = tied %\$tied;
+                    \$obj->[1] = \$followup;
+                    return \$tied;
                 }
             } );
 CODE
@@ -57,8 +61,8 @@ use overload(
         $converter => Devel::Spy::Util->compile_this( <<"CODE" );
             Sub::Name::subname( '@{[__PACKAGE__]}->$converter' => sub {
 
-                \$_[0][Devel::Spy::CODE]->(' ->$converter');
-                return \$_[0][Devel::Spy::TIED_PAYLOAD];
+                \$_[_self][Devel::Spy::CODE]->(' ->$converter');
+                return \$_[_self][Devel::Spy::TIED_PAYLOAD];
             } );
 CODE
         }
@@ -67,26 +71,44 @@ CODE
 );
 
 # Do a common things for all these common operators.
+use constant _other    => 1;
+use constant _inverted => 2;
 use overload(
     map {
         my $op = $_;
         $op => Devel::Spy::Util->compile_this( <<"CODE" );
             Sub::Name::subname( '@{[__PACKAGE__]}->$op' => sub {
 
-                # Unpack the arguments.
-                my ( \$self, \$rhs, \$inverted ) = \@_;
-                my \$orig_rhs = \$rhs;
-                my \$lhs = \$self->[Devel::Spy::TIED_PAYLOAD];
-                ( \$rhs, \$lhs ) = ( \$lhs, \$rhs ) if \$inverted;
+                my ( \$result, \$followup );
+                if ( \$_[_inverted] ) {
+                    \$result = \$_[_self][Devel::Spy::TIED_PAYLOAD] $op \$_[_other];
+                    \$followup = \$_[_self][Devel::Spy::CODE]->(
+                        ' ->('
+                        . ( defined \$_[_other]
+                            ? \$_[_other]
+                            : 'undef')
+                        . ' $op '
+                        . ( defined \$_[_self][Devel::Spy::UNTIED_PAYLOAD]
+                            ? \$_[_self][Devel::Spy::UNTIED_PAYLOAD]
+                            : 'undef')
+                        . ') ->'
+                        . overload::StrVal(\$result) );
+                }
+                else {
+                    \$result = \$_[_self][Devel::Spy::TIED_PAYLOAD] $op \$_[_other];
+                    \$followup = \$_[_self][Devel::Spy::CODE]->(
+                        ' ->('
+                        . ( defined \$_[_self][Devel::Spy::UNTIED_PAYLOAD]
+                            ? \$_[_self][Devel::Spy::UNTIED_PAYLOAD]
+                            : 'undef')
+                        . ' $op '
+                        . ( defined \$_[_other]
+                            ? \$_[_other]
+                            : 'undef')
+                        . ') ->'
+                        . overload::StrVal(\$result) );
+                }
 
-                my \$result = \$lhs $op \$rhs;
-
-                my \$followup = \$_[0][Devel::Spy::CODE]->(  ' ->('
-                                                           . ( defined \$lhs ? \$lhs : 'undef')
-                                                           . ' $op '
-                                                           . ( defined \$rhs ? \$rhs : 'undef')
-                                                           . ') ->'
-                                                           . overload::StrVal(\$result) );
                 return Devel::Spy->new( \$result, \$followup );
              } );
 CODE

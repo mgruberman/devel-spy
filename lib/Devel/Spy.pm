@@ -7,24 +7,25 @@ use Sub::Name ();
 
 our $VERSION = '0.06';
 
+use constant _class  => 0;
+use constant _thing  => 1;
+use constant _logger => 2;
 sub new {
-    my ( $class, $thing, $code ) = @_;
-
     my @self;
 
     # Store a tied wrapper over the object. This will be used anytime
     # thing is ever used as a value or reference.
-    $self[TIED_PAYLOAD] = Devel::Spy::Util->wrap_thing( $thing, $code );
+    $self[TIED_PAYLOAD] = Devel::Spy::Util->wrap_thing( $_[_thing], $_[_logger] );
 
     # Store a plain copy of $thing as well. If $thing is an object the
     # method calls have to go through this copy instead. tied objects
     # can't be returned as objects from function calls.
-    $self[UNTIED_PAYLOAD] = $thing;
+    $self[UNTIED_PAYLOAD] = $_[_thing];
 
     # Store the reporting code, whatever that is.
-    $self[CODE] = $code;
+    $self[CODE] = $_[_logger];
 
-    return bless \@self, "$class\::_obj";
+    return bless \@self, "$_[_class]\::_obj";
 }
 
 my $null_eventlog = Devel::Spy::Util->Y(
