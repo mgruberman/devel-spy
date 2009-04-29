@@ -36,8 +36,10 @@ sub tattler :Test(1) {
     my @inner;
     my $outer = Devel::Spy->new( \ @inner, $logger );
     $outer->[52] = 'Go go Pony';
-    
-    like( $logged->contents, qr/Go go pony/, '->make_tattler logs to STDOUT' );
+
+    my $contents = $logged->contents;
+
+    like( $contents, qr/Go go Pony/, '->make_tattler logs to STDOUT' );
 }
 
 sub hash_value : Test(8) {
